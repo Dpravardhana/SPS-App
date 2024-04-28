@@ -14,6 +14,7 @@ import '../../home.dart';
 import '../../utils/helper/helper_function.dart';
 import '../../utils/loading_component.dart';
 import '../../utils/toast_message.dart';
+import '../showNearbyLots.dart';
 
 class LoginReg extends StatefulWidget {
   const LoginReg({super.key});
@@ -378,7 +379,7 @@ class _LoginRegState extends State<LoginReg> with TickerProviderStateMixin {
           showToast("Welcome!");
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const LandingPage()),
+              MaterialPageRoute(builder: (context) => const NearbyLots()),
                   (route) => false);
           //todo: change the landing page
 
