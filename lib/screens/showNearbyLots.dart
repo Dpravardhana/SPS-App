@@ -3,9 +3,12 @@ import 'package:dio/dio.dart';
 import 'package:five_pointed_star/five_pointed_star.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:smart_parking_system/screens/individualLot.dart';
 
 import '../constants.dart';
+import '../utils/loading_component.dart';
 import '../utils/toast_message.dart';
 
 class NearbyLots extends StatefulWidget {
@@ -17,10 +20,15 @@ class NearbyLots extends StatefulWidget {
 
 class _NearbyLotsState extends State<NearbyLots> {
   // late List<Map<String, dynamic>> nearbyLots;
-  late List<dynamic> nearbyLots;
+   List<dynamic> nearbyLots = [];
+  late String latitude,longitude;
+
+  bool isLoading=false;
   @override
   void initState() {
     super.initState();
+    getCurrentLocation();
+    // debugPrint("coordinates $latitude $longitude");
     showNearbyLots();
   }
 
@@ -62,39 +70,56 @@ class _NearbyLotsState extends State<NearbyLots> {
             ],
           ),
         ),
-        body: nearbyLots.isEmpty
-            ? const Center(
-                child: Text(
-                  "No Lots found.",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
+        body:isLoading == true
+            ? const LoadingComponent()
+            :  nearbyLots.isEmpty
+            ? RefreshIndicator(
+              onRefresh: _pullRefresh,
+              child: const Center(
+                  child: Text(
+                    "No Lots found.",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
-              )
-            : GridView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.only(
-                  bottom: 68,
+            )
+            : RefreshIndicator(
+              onRefresh: _pullRefresh,
+              child: GridView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(
+                    bottom: 68,
+                  ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: MediaQuery.of(context).size.width /
+                        (MediaQuery.of(context).size.height / 2),
+                  ),
+                  itemCount: nearbyLots.length,
+                  itemBuilder: (ctx, i) => LotCard(
+                    lot: nearbyLots[i],
+                    onTap: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IndividualLot(data:nearbyLots[i]),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  childAspectRatio: MediaQuery.of(context).size.width /
-                      (MediaQuery.of(context).size.height / 2),
-                ),
-                itemCount: nearbyLots.length,
-                itemBuilder: (ctx, i) => LotCard(
-                  lot: nearbyLots[i],
-                  onTap: () {
-                    // todo: individual slot
-                  },
-                ),
-              ),
+            ),
       ),
     );
   }
 
   void showNearbyLots() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       final response = await Dio().post(
         Constants.showNearbyLots,
@@ -106,7 +131,8 @@ class _NearbyLotsState extends State<NearbyLots> {
               status! < 1000, // This line is extremely important
         ),
         data: {
-          "coordinates": "6 6"
+          // "coordinates": "$latitude $longitude"
+          "coordinates": "6.4 6.2"
           //todo: fetch current location and pass it here
         },
       );
@@ -124,13 +150,35 @@ class _NearbyLotsState extends State<NearbyLots> {
         showToast(response.data['MESSAGE'] ??
             "Something went wrong. Please try again later");
       }
-      showToast("Something went wrong. Please try again later");
+
     } catch (err) {
       if (kDebugMode) {
         print("[ERROR]: $err");
       }
-
       showToast("Something went wrong. Please try again later");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+  Future<void> _pullRefresh() async {
+    showNearbyLots();
+    // showToast("Refresh successul");
+  }
+  void  getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      showToast("Allow permissions");
+      LocationPermission ask = await Geolocator.requestPermission();
+    } else {
+      Position currentposition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+      print("Latitude=${currentposition.latitude.toString()}");
+      print("Longitude=${currentposition.longitude.toString()}");
+      latitude=currentposition.latitude.toString();
+      longitude=currentposition.longitude.toString();
     }
   }
 }
@@ -172,11 +220,10 @@ class _LotCardState extends State<LotCard> {
               Container(
                 padding: const EdgeInsets.all(4),
                 height: imageHeight,
-                decoration: const BoxDecoration(
+                decoration:  BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
-                      // lot["lotImageURL"], //todo:
-                      "https://i.imgur.com/iQy8GLM.jpg",
+                      widget.lot["lot"]["lotImageURL"],
                     ),
                     fit: BoxFit.cover,
                   ),
@@ -189,8 +236,6 @@ class _LotCardState extends State<LotCard> {
                             context: context,
                             builder: (context) {
                               return LayoutBuilder(builder: (context, constraints) {
-                                double width = constraints.maxWidth;
-                                double height = constraints.maxHeight;
                                 return AlertDialog(
                                   contentPadding: const EdgeInsets.only(left: 30,top:20),
                                   // width: width,
@@ -374,7 +419,7 @@ class _LotCardState extends State<LotCard> {
         showToast(response.data['MESSAGE'] ??
             "Something went wrong. Please try again later");
       }
-      showToast("Something went wrong. Please try again later");
+
     } catch (err) {
       if (kDebugMode) {
         print("[ERROR]: $err");

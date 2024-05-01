@@ -5,16 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_parking_system/screens/auth/register_page.dart';
-
-import 'package:crypto/crypto.dart';
-import 'package:smart_parking_system/screens/landing_page.dart';
-
 import '../../constants.dart';
 import '../../home.dart';
 import '../../utils/helper/helper_function.dart';
 import '../../utils/loading_component.dart';
 import '../../utils/toast_message.dart';
-import '../showNearbyLots.dart';
+import 'package:crypto/crypto.dart';
 
 class LoginReg extends StatefulWidget {
   const LoginReg({super.key});
@@ -34,7 +30,6 @@ class _LoginRegState extends State<LoginReg> with TickerProviderStateMixin {
   late FocusNode _passwordFocusNode;
   bool _isPasswordVisible = false;
 
-  bool _isFromCampus = false;
 
   late AnimationController _controller;
   late Animation gradientAnimation;
@@ -125,7 +120,7 @@ class _LoginRegState extends State<LoginReg> with TickerProviderStateMixin {
                         right: maxWidth * 0.1,
                       ),
                       child: Image.asset(
-                        'assets/Images/anokha2024_logo.webp',
+                        'assets/logo.png',
                       ),
                     ),
                     SizedBox(height: maxHeight * 0.02),
@@ -379,18 +374,17 @@ class _LoginRegState extends State<LoginReg> with TickerProviderStateMixin {
           showToast("Welcome!");
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const NearbyLots()),
+              MaterialPageRoute(builder: (context) => const HomePage()),
                   (route) => false);
-          //todo: change the landing page
 
           return "1";
         } else if (response.statusCode == 400) {
           showToast(response.data['MESSAGE'] ??
-              "Something went wrong. Please try again later");
+              "Invalid credentials");
           return "-1";
         }
 
-        showToast("Something went wrong. Please try again later");
+        showToast("Invalid credentials");
 
         return "-1";
       } catch (err) {
@@ -398,7 +392,7 @@ class _LoginRegState extends State<LoginReg> with TickerProviderStateMixin {
           print("[ERROR]: $err");
         }
 
-        showToast("Something went wrong. Please try again later");
+        showToast("Invalid credentials");
       } finally {
         setState(() {
           _isLoading = false;

@@ -70,8 +70,9 @@ class _RegisterPageState extends State<RegisterPage>
     return LayoutBuilder(builder: (context, constraints) {
       double maxHeight = constraints.maxHeight;
       return Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(43, 30, 56, 1),
+          backgroundColor: Colors.transparent,
           forceMaterialTransparency: false,
           systemOverlayStyle: SystemUiOverlayStyle.light,
           leading: IconButton(

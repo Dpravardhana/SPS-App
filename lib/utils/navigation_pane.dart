@@ -45,12 +45,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
               text: 'Home',
             ),
             GButton(
-              icon: Icons.trending_up_rounded,
-              text: 'Featured',
+              icon: Icons.car_repair_rounded,
+              text: 'Lots',
             ),
             GButton(
-              icon: Icons.event_note,
-              text: 'Events',
+              icon: Icons.qr_code,
+              text: 'Scan',
             ),
             GButton(
               icon: Icons.person,

@@ -117,7 +117,7 @@ class _PrimaryScreenState extends State<PrimaryScreen> {
             ),
           ),
           child: Center(
-            child: Image.asset("assets/Images/anokha2024_logo.webp"),
+            child: Image.asset("assets/logo.png"),
           ),
         ),
       ),

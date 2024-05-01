@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_parking_system/screens/auth/login_page.dart';
+import 'package:smart_parking_system/screens/individualLot.dart';
+import 'package:smart_parking_system/screens/landingPage.dart';
 import 'package:smart_parking_system/screens/landing_page.dart';
+import 'package:smart_parking_system/screens/profile/profile_page.dart';
+import 'package:smart_parking_system/screens/scan/entryExit.dart';
 import 'package:smart_parking_system/screens/showNearbyLots.dart';
+import 'package:smart_parking_system/helper/location.dart';
 import 'package:smart_parking_system/utils/alert_dialog.dart';
 import 'package:smart_parking_system/utils/navigation_pane.dart';
 
@@ -101,10 +106,10 @@ class HomePageState extends State<HomePage> {
           physics:
               const NeverScrollableScrollPhysics(), // Prevent manual page swipes
           children: const [
+            Countdown(),
             NearbyLots(),
-            LandingPage(),
-            LandingPage(),
-            LandingPage(),
+            EntryExit(),
+            UserProfile(),
           ],
         ),
         bottomNavigationBar: CustomBottomNavigationBar(
